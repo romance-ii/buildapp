@@ -16,7 +16,7 @@
    hu.dwim.build. Buildapp is available under
    a <a href='#license'>BSD-style license</a>. 
 
-The latest version is 1.5, released on October 8th, 2013.
+The latest version is 1.5.2, released on January 20th, 2014.
 
  <p>Download shortcut: <a href='http://www.xach.com/lisp/buildapp.tgz'>http://www.xach.com/lisp/buildapp.tgz</a>
 </div>
@@ -35,9 +35,13 @@ The latest version is 1.5, released on October 8th, 2013.
 
 <a name='installation'><h2>Installation</h2></a>
 
-<p>Buildapp does not require any libraries. To create and install the
-  application, use <tt>make&nbsp;install</tt>. By default, it is
-  installed in <tt>/usr/local/bin</tt>; to use another location,
+<p>Buildapp does not require any libraries. To compile it with SBCL
+  you simply run <tt>make install</tt>. To compile with a different
+  lisp, just specify it after the make command:
+  <tt>make install LISP=&lt;my_favorite_lisp&gt;</tt>. For example,
+  you wanted to compile it under CCL you'd say
+  <tt>make install LISP=ccl</tt> By default, it is installed in
+  <tt>/usr/local/bin</tt>; to use another location,
   use <tt>make&nbsp;DESTDIR=/path&nbsp;install</tt>.
 
 <p>You can also create the buildapp binary by loading the buildapp
@@ -445,10 +449,11 @@ For the latest documentation, see http://www.xach.com/lisp/buildapp/
   required <tt>:save-runtime-options</tt> argument?
 
 <li>The dumpfile performs the eval/load/load-system/require
-  actions. Each operation is evaluated with a fresh binding
-  of <tt>sb-ext:*invoke-debugger-hook*</tt> in sbcl
-  or <tt>ccl::*debugger-hook*</tt> in ccl to the buildapp debugger
-  function. If the binding is modified, the new value is saved.
+  actions. Each operation is evaluated in the <tt>cl-user</tt> package
+  and with a fresh binding of <tt>sb-ext:*invoke-debugger-hook*</tt>
+  in sbcl or <tt>ccl::*debugger-hook*</tt> in ccl to the buildapp
+  debugger function. If the binding is modified, the new value is
+  saved.
 
 <li>The dumpfile clears itself out of the environment:
 
