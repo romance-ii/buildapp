@@ -38,7 +38,7 @@
                        #p"buildapp")))
     (make-pathname :type (pathname-type template)))
   #+ccl
-  (make-pathname :type #+windows #p"buildapp.exe" #-windows nil)
+  (make-pathname :type #+windows "exe" #-windows nil)
   "This pathname is merged with the output parameter to produce the
   final output executable name. It's meant to automatically include
   the executable suffix .EXE on Windows.")
@@ -127,6 +127,10 @@ Other flags:"
 "
   --sbcl PATH-TO-SBCL       Use PATH-TO-SBCL instead of the sbcl program
                               found in your PATH environment variable"
+#+ccl
+"
+  --ccl PATH-TO-CCL         Use PATH-TO-CCL instead of the ccl program
+                              found in your PATH environment variable"
 "
 For the latest documentation, see http://www.xach.com/lisp/buildapp/
 "))
@@ -159,7 +163,8 @@ For the latest documentation, see http://www.xach.com/lisp/buildapp/
     (format *system-load-output* "~&Fatal ~A:~%  ~A~%"
             (type-of condition) condition)
     (print (macroexpand-1 '(backtrace-as-list)) *logfile-output*)
-    (macroexpand-1 '(quit 111))))
+    #+sbcl (sb-ext:exit :code 111)
+    #+ccl (ccl:quit 111)))
 
 (defun command-line-debugger (condition previous-hook)
   "The function to call if there are errors in the command-line
@@ -364,9 +369,11 @@ it. If an exact filename is not found, file.lisp is also tried."
        :error-handler :quit))))
 
 (defun write-dumpfile (dumper stream)
-  (let ((*print-case* :downcase))
-    (dolist (form (dumpfile-forms dumper))
-      (print form stream))))
+  (with-standard-io-syntax
+    (let ((*print-case* :downcase)
+          (*package* (find-package '#:buildapp)))
+      (dolist (form (dumpfile-forms dumper))
+        (print form stream)))))
 
 (defun dump-to-file (dumper file)
   "Save the forms of DUMPER to FILE."
